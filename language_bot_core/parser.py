@@ -1,11 +1,6 @@
 import re
 
 from .constants import ENG_CHARS, RUS_CHARS
-# import constants
-#
-# ENG_CHARS = constants.ENG_CHARS
-# RUS_CHARS = constants.RUS_CHARS
-
 
 ENG_WORD = 1
 RUS_WORD = 2
