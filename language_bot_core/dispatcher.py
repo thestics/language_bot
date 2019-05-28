@@ -20,13 +20,7 @@ def build_random_words_by_uids(db: DBManager, uids: list):
     :param uids: user_id's list
     :return: dict({user_id: (word_from, word_to)})
     """
-    res = {}
-    for uid in uids:
-        words = db.get_words_by_uid(uid)
-        if not words:
-            return None
-        pair = random.choice(words)
-        res[uid] = pair
+    res = {uid: db.get_random_word_by_uid(uid) for uid in uids}
     return res
 
 
