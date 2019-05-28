@@ -15,6 +15,8 @@ words_buffer = {}
 
 # to allow users answer questions and upload new words we store
 # id's of currently answering/uploading users
+
+# TODO: strange approach, REVISE!
 permitted_for_answer = {}
 permitted_for_update = {}
 registered_users_buffer = set()
@@ -23,9 +25,7 @@ registered_users_buffer = set()
 bot = tb.TeleBot(token)
 
 
-# TODO: work on handler placement (probably should be moved to their own module)
-
-
+# TODO: work on handlers placement (probably should be moved to another module)
 def is_registered(msg):
     """
     Helper validation function to prevent any actions from unregistered users
@@ -33,10 +33,9 @@ def is_registered(msg):
     :param msg:
     :return: is allowed to use command
     """
-    if msg in registered_users_buffer:
+    if msg.chat.id in registered_users_buffer:
         return True
     return False
-
 
 @bot.message_handler(commands=['start'])
 def start_handler(msg):
@@ -117,7 +116,7 @@ def reveal_word_handler(msg):
 def show_words_helper(msg):
     db = DBManager(db_path)
     db.connect()
-    resp_data = db.get_words_by_uid(msg.chat.id)
+    resp_data = db.get_all_words_by_uid(msg.chat.id)
     resp = " ".join(map(lambda s: " - ".join(s) + '\n', resp_data)) + ' '
     bot.send_message(msg.chat.id, resp)
     db.disconnect()
@@ -194,8 +193,11 @@ def answer_handler(msg):
         words_buffer.pop(msg.chat.id)
         bot.send_message(msg.chat.id, "Correct!")
     else:
-        bot.send_message(msg.chat.id, "Incorrect, try again.")
-
+        if is_registered(msg):
+            bot.send_message(msg.chat.id, "Incorrect, try again.")
+        else:
+            bot.send_message(msg.chat.id, "You are not registered"
+                                          "Type /start to begin")
 
 @bot.message_handler(func=lambda msg:
                      permitted_for_update.get(msg.chat.id, False))
