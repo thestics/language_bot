@@ -62,6 +62,30 @@ class ConnectedDB:
             db_manager.curs.execute(q, (uid, word_from, word_to, 0))
         db_manager.conn.commit()
 
+    @staticmethod
+    def get_next_time_by_uid(db_manager, cur_time_str, uid):
+        q = "select time from schedule where time > ? and user_id = ? " \
+            "order by time asc limit 1"
+        db_manager.curs.execute(q, (cur_time_str, uid))
+        resp = db_manager.curs.fetchone()
+        if not resp:
+            return None
+        return resp[0]
+
+    @staticmethod
+    def get_random_word_by_uid(db_manager, uid: int):
+        q = """select t1.word_from, t1.word_to from
+               (
+                 select word_from, word_to from word_src where user_id = ?
+               ) as t1
+               
+               limit 1
+               offset (abs(random()) % 
+               (select count(*) from word_src where user_id = ?))"""
+        db_manager.curs.execute(q, (uid, uid))
+        return db_manager.curs.fetchone()
+
+
 class DisconnectedDB:
     """Class which represents disconnected database state"""
 
@@ -103,6 +127,14 @@ class DisconnectedDB:
     def add_words(db_manager, uid: int, words: list):
         raise RuntimeError("Cannot perform queries on closed database")
 
+    @staticmethod
+    def get_next_time_by_uid(db_manager, cur_time_str, uid):
+        raise RuntimeError("Cannot perform queries on closed database")
+
+    @staticmethod
+    def get_random_word_by_uid(self, uid: int):
+        raise RuntimeError("Cannot perform queries on closed database")
+
 
 class DBManager:
 
@@ -132,7 +164,7 @@ class DBManager:
         self._state.add_scheduled_time_by_uid(self, uid, time_string)
 
     # TODO: intensive calls expected, needs to be optimized
-    def get_next_time_by_uid(self, cur_time_str, uid):
+    def _get_next_time_by_uid(self, cur_time_str, uid):
         schedule = self.get_schedule_by_uid(uid)
         if not schedule:
             return None
@@ -140,6 +172,9 @@ class DBManager:
             if time_str > cur_time_str:
                 return schedule[i]
         return None
+
+    def get_next_time_by_uid(self, cur_time_str, uid):
+        self._state.get_next_time_by_uid(self, cur_time_str, uid)
 
     def is_registered(self, uid: int) -> bool:
         return self._state.is_registered(self, uid)
@@ -150,8 +185,11 @@ class DBManager:
     # TODO: probably it is more convenient to make separate method for
     # TODO: getting random word rather then extracting entire dictionary
     # TODO: and work with it
-    def get_words_by_uid(self, uid: int) -> tuple:
-        return self._state.get_words_by_uid(self, uid)
+    def get_all_words_by_uid(self, uid: int) -> tuple:
+        return self._state.get_all_words_by_uid(self, uid)
+
+    def get_random_word_by_uid(self, uid: int):
+        return self._state.get_random_word_by_uid(self, uid)
 
     def add_words(self, uid: int, words: list):
         self._state.add_words(self, uid, words)
