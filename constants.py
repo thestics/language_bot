@@ -32,7 +32,7 @@ commands = {
             'next_word:': 'force next word',
             'reveal_last': 'show translation for last word and skip it',
             'show_words': 'show full list of uploaded words',
-            'add_time': 'add time to schedule',
+            'add_time': 'add time to schedule 00:00:00 - 23:59:59',
             'add_words': 'add words',
             'schedule': 'list your timetable for questions'
             }
