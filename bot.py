@@ -52,6 +52,7 @@ def start_handler(msg):
         bot.send_message(msg.chat.id, greeting_msg)
         permitted_for_answer[msg.chat.id] = True
         permitted_for_update[msg.chat.id] = False
+        registered_users_buffer.update([msg.chat.id])
     else:
         bot.send_message(msg.chat.id, "I know you.")
     db.disconnect()
