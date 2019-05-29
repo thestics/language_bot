@@ -41,7 +41,7 @@ class ConnectedDB:
             db_manager.conn.commit()
 
     @staticmethod
-    def get_words_by_uid(db_manager, uid):
+    def get_all_words_by_uid(db_manager, uid):
         q = """select word_from, word_to from word_src where user_id = ?"""
         db_manager.curs.execute(q, (uid,))
         return db_manager.curs.fetchall()
@@ -133,6 +133,10 @@ class DisconnectedDB:
 
     @staticmethod
     def get_random_word_by_uid(self, uid: int):
+        raise RuntimeError("Cannot perform queries on closed database")
+
+    @staticmethod
+    def get_all_words_by_uid(db_manager, uid):
         raise RuntimeError("Cannot perform queries on closed database")
 
 
