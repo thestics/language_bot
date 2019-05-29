@@ -85,7 +85,7 @@ def next_word_handler(msg):
     db.connect()
     new_pair = build_random_words_by_uids(db, [msg.chat.id])
     db.disconnect()
-    if new_pair is None:
+    if not new_pair:
         bot.send_message(msg.chat.id, "You haven't added any words yet")
         return
     if msg.chat.id in words_buffer:
