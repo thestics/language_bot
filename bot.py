@@ -118,7 +118,10 @@ def show_words_helper(msg):
     db = DBManager(db_path)
     db.connect()
     resp_data = db.get_all_words_by_uid(msg.chat.id)
-    resp = " ".join(map(lambda s: " - ".join(s) + '\n', resp_data)) + ' '
+    if not resp_data:
+        resp = "No words uploaded yet"
+    else:
+        resp = " ".join(map(lambda s: " - ".join(s) + '\n', resp_data)) + ' '
     bot.send_message(msg.chat.id, resp)
     db.disconnect()
 
