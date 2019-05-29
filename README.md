@@ -1,5 +1,4 @@
-# Telegram Language bot 
-[helper bot](https://telegram.me/language_helper_bot)
+# Telegram Language bot [@language_helper_bot](https://telegram.me/language_helper_bot)
 
 A good way to learn new words in a new language, is to use content present on
 this language, search for all unknown words, write them down, and then revise them
