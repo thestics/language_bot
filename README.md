@@ -12,7 +12,7 @@ time a message will be sent to you with question about translation of
 particular word.
 
 
-## Released featurer
+## Released features
 	* info about commands
 	* info about words input format
 	* manual time scheduling 
@@ -22,7 +22,7 @@ particular word.
 
 ## Feachures to be released
 	* Division of uploaded words into learned/to be learned
-	* Statistics about your learn pace (how many attemts it took you to learn the word,
-average time of answering etc.)
+	* Statistics about your learn pace (how many attemts it took you to learn the word, average time of answering etc.)
 	* Pre-defined schedule markups (every couple of hours, n times a day etc.)
 	* Rework of user input orientation (buttons much more user friendly than typed commands)
+
