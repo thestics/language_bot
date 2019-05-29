@@ -5,7 +5,7 @@ this language, search for all unknown words, write them down, and then revise th
 once in a while. 
 
 What this bot intended for is to remove need in manual revision of stored words
-by making him to ask you for translation of word you have gave to him. 
+by making him to ask you for translation of a random word from words you have gave to him. 
 You can copy-paste your notes with words in given format, and send them to bot.
 Also you are able to manually schedule him this 'questioning', so at given 
 time a message will be sent to you with question about translation of 
