@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*-encoding: utf-8-*-
+
+
 TOKEN = "858148579:AAGRbz8Y_xa0RrdPL45lsPiB--rrT3MwiAU"
 DB_PATH = "source.db"
 GREETING_MSG = "You was successfully registered!"

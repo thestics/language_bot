@@ -1,6 +1,11 @@
+#!/usr/bin/env python3
+# -*-encoding: utf-8-*-
+
 import re
 
 from .constants import ENG_CHARS, RUS_CHARS
+
+
 
 ENG_WORD = 1
 RUS_WORD = 2
