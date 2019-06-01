@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*-encoding: utf-8-*-
+
+
 from threading import RLock
 
 
@@ -32,11 +36,15 @@ class ThreadedDict:
 
     def __setitem__(self, key, value):
         with self.lock:
-            self.__setitem__(key, value)
+            self.data.__setitem__(key, value)
 
     def __delitem__(self, key):
         with self.lock:
             self.data.__delitem__(key)
+
+    def __contains__(self, item):
+        with self.lock:
+            return self.data.__contains__(item)
 
     def __getattr__(self, name):
         """
