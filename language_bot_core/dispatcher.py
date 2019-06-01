@@ -1,6 +1,5 @@
 import time
 import types
-import random
 
 from .dbmanager import DBManager
 
@@ -46,8 +45,8 @@ def dispatch_mainloop(path:str, delay: int, callback: types.FunctionType):
                       for uid in uids}
     db.disconnect()
     while True:
-        print("DISPATCHER AWAKE")
-        print("prev uids map:", uids_next_time)
+        # print("DISPATCHER AWAKE")
+        # print("prev uids map:", uids_next_time)
         db.connect()
 
         # list with user ids, which needs to be processed now
@@ -77,7 +76,7 @@ def dispatch_mainloop(path:str, delay: int, callback: types.FunctionType):
         if new_words:
             callback(uids, new_words)
         db.disconnect()
-        print("upd uids map:", uids_next_time)
-        print(f"DISPATCHER ASLEEP FOR: {delay} sec")
+        # print("upd uids map:", uids_next_time)
+        # print(f"DISPATCHER ASLEEP FOR: {delay} sec")
         time.sleep(delay)
 
