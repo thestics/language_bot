@@ -167,18 +167,8 @@ class DBManager:
     def add_scheduled_time_by_uid(self, uid: int, time_string: str):
         self._state.add_scheduled_time_by_uid(self, uid, time_string)
 
-    # TODO: intensive calls expected, needs to be optimized
-    def _get_next_time_by_uid(self, cur_time_str, uid):
-        schedule = self.get_schedule_by_uid(uid)
-        if not schedule:
-            return None
-        for i, time_str in enumerate(sorted(schedule)):
-            if time_str > cur_time_str:
-                return schedule[i]
-        return None
-
     def get_next_time_by_uid(self, cur_time_str, uid):
-        self._state.get_next_time_by_uid(self, cur_time_str, uid)
+        return self._state.get_next_time_by_uid(self, cur_time_str, uid)
 
     def is_registered(self, uid: int) -> bool:
         return self._state.is_registered(self, uid)
@@ -186,9 +176,6 @@ class DBManager:
     def register(self, uid: int) -> None:
         self._state.register(self, uid)
 
-    # TODO: probably it is more convenient to make separate method for
-    # TODO: getting random word rather then extracting entire dictionary
-    # TODO: and work with it
     def get_all_words_by_uid(self, uid: int) -> tuple:
         return self._state.get_all_words_by_uid(self, uid)
 
