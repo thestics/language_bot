@@ -1,3 +1,7 @@
+#!/usr/bin/env python3
+# -*-encoding: utf-8-*-
+
+
 # NEEDS TO BE TESTED FOR CONCURRENCY ERRORS
 
 
@@ -5,10 +9,12 @@ from threading import Thread
 
 import telebot as tb
 
-from utils import ThreadedDict
+from telegram_language_bot.utils import ThreadedDict
 from language_bot_core import dispatch_mainloop, DBManager, \
                             build_random_words_by_uids, parse
-from constants import TOKEN, DB_PATH, GREETING_MSG, WORDS_UPLOAD_MSG, COMMANDS
+from telegram_language_bot.constants import TOKEN, DB_PATH, GREETING_MSG,\
+                            WORDS_UPLOAD_MSG, COMMANDS
+
 
 # global storage for all currently asked words {uid: (asked word: answer)}
 # designed to be thread-sustainable
