@@ -1,7 +1,7 @@
-from threading import Lock
+from threading import RLock
 
 
-class WordsBuffer:
+class ThreadedDict:
     """
     Dictionary wrapper class for safe usage from different threads
     """
@@ -9,7 +9,7 @@ class WordsBuffer:
         self.data = {}
 
         # lock object to avoid simultaneous modifying from different threads
-        self.lock = Lock()
+        self.lock = RLock()
 
     def _wrap(self, f):
         """
@@ -20,35 +20,23 @@ class WordsBuffer:
 
             # if was acquired by a different thread
             # it will wait here until release it's release
-            self.lock.acquire()
-            try:
+            with self.lock:
                 res = f(*args, **kwargs)
                 return res
-            finally:
-                self.lock.release()
 
         return new_f
 
     def __getitem__(self, item):
-        self.lock.acquire()
-        try:
+        with self.lock:
             return self.data.__getitem__(item)
-        finally:
-            self.lock.release()
 
     def __setitem__(self, key, value):
-        self.lock.acquire()
-        try:
-            self.data.__setitem__(key, value)
-        finally:
-            self.lock.release()
+        with self.lock:
+            self.__setitem__(key, value)
 
     def __delitem__(self, key):
-        self.lock.acquire()
-        try:
+        with self.lock:
             self.data.__delitem__(key)
-        finally:
-            self.lock.release()
 
     def __getattr__(self, name):
         """

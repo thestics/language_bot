@@ -1,7 +1,7 @@
-token = "858148579:AAGRbz8Y_xa0RrdPL45lsPiB--rrT3MwiAU"
-db_path = "source.db"
-greeting_msg = "You was successfully registered!"
-words_upload_msg = "For uploading words it is enough to copy your stored\n" \
+TOKEN = "858148579:AAGRbz8Y_xa0RrdPL45lsPiB--rrT3MwiAU"
+DB_PATH = "source.db"
+GREETING_MSG = "You was successfully registered!"
+WORDS_UPLOAD_MSG = "For uploading words it is enough to copy your stored\n" \
                    "data here in the following format:\n\n" \
                    "<some word> <definition>\n" \
                    "<again word> <it's own definition>\n\n" \
@@ -25,7 +25,7 @@ words_upload_msg = "For uploading words it is enough to copy your stored\n" \
                    "NOTE [3]: for now, you are supposed to separate your data "\
                    "with newlines."
 
-commands = {
+COMMANDS = {
             'start': 'start fun',
             'info': 'show full info on available commands',
             'upload_info': 'detailed info about uploading words',

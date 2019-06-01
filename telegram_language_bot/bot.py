@@ -1,20 +1,18 @@
 # NEEDS TO BE TESTED FOR CONCURRENCY ERRORS
-# GLOBAL VARIABLE IS EXPOSED TO BE MODIFIED FROM DIFFERENT THREADS
-
 
 
 from threading import Thread
 
 import telebot as tb
 
-from utils import WordsBuffer
+from utils import ThreadedDict
 from language_bot_core import dispatch_mainloop, DBManager, \
                             build_random_words_by_uids, parse
-from constants import token, db_path, greeting_msg, words_upload_msg, commands
+from constants import TOKEN, DB_PATH, GREETING_MSG, WORDS_UPLOAD_MSG, COMMANDS
 
 # global storage for all currently asked words {uid: (asked word: answer)}
 # designed to be thread-sustainable
-words_buffer = WordsBuffer()
+words_buffer = ThreadedDict()
 
 # to allow users answer questions and upload new words we store
 # id's of currently answering/uploading users
@@ -25,7 +23,7 @@ permitted_for_update = {}
 registered_users_buffer = set()
 
 
-bot = tb.TeleBot(token)
+bot = tb.TeleBot(TOKEN)
 
 
 # TODO: work on handlers placement (probably should be moved to another module)
@@ -49,11 +47,11 @@ def start_handler(msg):
     :param msg: message
     :return: None
     """
-    db = DBManager(db_path)
+    db = DBManager(DB_PATH)
     db.connect()
     if not db.is_registered(msg.chat.id):
         db.register(msg.chat.id)
-        bot.send_message(msg.chat.id, greeting_msg)
+        bot.send_message(msg.chat.id, GREETING_MSG)
         permitted_for_answer[msg.chat.id] = True
         permitted_for_update[msg.chat.id] = False
         registered_users_buffer.update([msg.chat.id])
@@ -65,14 +63,14 @@ def start_handler(msg):
 @bot.message_handler(commands=['info'], func=is_registered)
 def info_helper(msg):
     reply = ""
-    for command, desc in commands.items():
+    for command, desc in COMMANDS.items():
         reply += "/{} - {}\n".format(command, desc)
     bot.send_message(msg.chat.id, reply)
 
 
 @bot.message_handler(commands=['upload_info'], func=is_registered)
 def upload_info_helper(msg):
-    bot.send_message(msg.chat.id, words_upload_msg)
+    bot.send_message(msg.chat.id, WORDS_UPLOAD_MSG)
 
 
 @bot.message_handler(commands=['next_word'], func=is_registered)
@@ -85,7 +83,7 @@ def next_word_handler(msg):
     :return: None
     """
     global words_buffer
-    db = DBManager(db_path)
+    db = DBManager(DB_PATH)
     db.connect()
     new_pair = build_random_words_by_uids(db, [msg.chat.id])
     db.disconnect()
@@ -119,7 +117,7 @@ def reveal_word_handler(msg):
 
 @bot.message_handler(commands=['show_words'], func=is_registered)
 def show_words_helper(msg):
-    db = DBManager(db_path)
+    db = DBManager(DB_PATH)
     db.connect()
     resp_data = db.get_all_words_by_uid(msg.chat.id)
     if not resp_data:
@@ -134,12 +132,9 @@ def is_valid_time_string(time_str: str) -> bool:
     try:
         hh, mm, ss = time_str.split(':')
         hh, mm, ss = int(hh), int(mm), int(ss)
-        assert 0 <= hh <= 23
-        assert 0 <= mm <= 59
-        assert 0 <= mm <= 59
+        if not 0 <= hh <= 23 or not 0 <= mm <= 59 or not 0 <= mm <= 59:
+            raise ValueError
     except ValueError:
-        return False
-    except AssertionError:
         return False
     return True
 
@@ -158,7 +153,7 @@ def add_time_handler(msg):
                          "Inconsistent time format, try to stick with hh:mm:ss")
     else:
         time_string = raw_data[1]
-        db = DBManager(db_path)
+        db = DBManager(DB_PATH)
         db.connect()
         db.add_scheduled_time_by_uid(msg.chat.id, time_string)
         bot.send_message(msg.chat.id,
@@ -176,7 +171,7 @@ def add_words_handler(msg):
 
 @bot.message_handler(commands=['schedule'], func=is_registered)
 def schedule_helper(msg):
-    db = DBManager(db_path)
+    db = DBManager(DB_PATH)
     db.connect()
     schedule = db.get_schedule_by_uid(msg.chat.id)
     if not schedule:
@@ -218,7 +213,7 @@ def upload_handler(msg):
         bot.send_message(msg.chat.id, "Upload abandoned")
         return
     processed, unprocessed = parse(plain_text)
-    db = DBManager(db_path)
+    db = DBManager(DB_PATH)
     db.connect()
     db.add_words(msg.chat.id, processed)
     resp1 = "Processed words:" + \
@@ -266,8 +261,8 @@ def callback(uids: list, words: dict):
             bot.send_message(id, "Translation for: " + words_buffer[id][0])
 
 
-def initialize_variables():
-    db = DBManager(db_path)
+def _initialize_variables():
+    db = DBManager(DB_PATH)
     db.connect()
     uids = db.get_uids()
 
@@ -278,15 +273,21 @@ def initialize_variables():
     db.disconnect()
 
 
-if __name__ == '__main__':
+def run_bot(polling_delay):
+    _initialize_variables()
 
-    initialize_variables()
-
-    t1 = Thread(target=bot.polling, kwargs={"none_stop": True, 'interval':1})
-    t2 = Thread(target=dispatch_mainloop, args=(db_path, 10, callback))
+    t1 = Thread(target=bot.polling,
+                kwargs={"none_stop": True, 'interval': 1})
+    t2 = Thread(target=dispatch_mainloop,
+                args=(DB_PATH, polling_delay, callback))
 
     t1.start()
     t2.start()
 
     t1.join()
     t2.join()
+
+
+if __name__ == '__main__':
+    pass
+
