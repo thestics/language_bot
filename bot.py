@@ -6,12 +6,14 @@ from threading import Thread
 
 import telebot as tb
 
+from utils import WordsBuffer
 from language_bot_core import dispatch_mainloop, DBManager, \
                             build_random_words_by_uids, parse
 from constants import token, db_path, greeting_msg, words_upload_msg, commands
 
 # global storage for all currently asked words {uid: (asked word: answer)}
-words_buffer = {}
+# designed to be thread-sustainable
+words_buffer = WordsBuffer()
 
 # to allow users answer questions and upload new words we store
 # id's of currently answering/uploading users
@@ -36,6 +38,7 @@ def is_registered(msg):
     if msg.chat.id in registered_users_buffer:
         return True
     return False
+
 
 @bot.message_handler(commands=['start'])
 def start_handler(msg):
@@ -203,6 +206,7 @@ def answer_handler(msg):
             bot.send_message(msg.chat.id, "You are not registered"
                                           "Type /start to begin")
 
+
 @bot.message_handler(func=lambda msg:
                      permitted_for_update.get(msg.chat.id, False))
 def upload_handler(msg):
@@ -274,10 +278,14 @@ def initialize_variables():
 
 
 if __name__ == '__main__':
+
     initialize_variables()
 
-    t1 = Thread(target=bot.polling, kwargs={"none_stop": True})
+    t1 = Thread(target=bot.polling, kwargs={"none_stop": True, 'interval':1})
     t2 = Thread(target=dispatch_mainloop, args=(db_path, 10, callback))
 
     t1.start()
     t2.start()
+
+    t1.join()
+    t2.join()
