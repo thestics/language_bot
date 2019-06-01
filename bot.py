@@ -2,6 +2,7 @@
 # GLOBAL VARIABLE IS EXPOSED TO BE MODIFIED FROM DIFFERENT THREADS
 
 
+
 from threading import Thread
 
 import telebot as tb
