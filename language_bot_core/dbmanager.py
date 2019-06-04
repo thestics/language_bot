@@ -5,12 +5,46 @@
 import sqlite3
 
 
+class BaseDatabaseException(Exception):
+    pass
+
+
+class DisconnectedDatabaseError(BaseDatabaseException):
+    pass
+
+
+class ConnectedDatabaseError(BaseDatabaseException):
+    pass
+
+
+class DisconnectedDBMeta(type):
+    """Metaclass which defines common behavior of unimplemented methods for
+        DisconnectedDB class
+
+            Metaclass required because State classes implemented in such a way
+        that they are never instantiated. Following example explains why
+        this directly means that custom metaclass is required.
+        a = DisconnectedDB()
+        a.method()              -- invokes a.__class__.__getattribute__
+        (or __getattr__). In this case a.__class__ == DisconnectedDB, likewise
+        DisconnectedDB.method() -- invokes DisconnectedDB.__class__.__getattr__
+        however, in this case __class__ == type. (because any class in Python
+        is an instance of type) and all method management is hidden in
+        type.__getattr__, so in this case it is crucial to define our own
+        metaclass
+    """
+
+    def __getattr__(self, item):
+        raise DisconnectedDatabaseError('Cannot perform queries '
+                                        'on closed database')
+
+
 class ConnectedDB:
     """Class which represents connected database state"""
 
     @staticmethod
     def connect(db_manager):
-        raise RuntimeError("Already connected")
+        raise ConnectedDatabaseError("Already connected")
 
     @staticmethod
     def disconnect(db_manager):
@@ -90,7 +124,7 @@ class ConnectedDB:
         return db_manager.curs.fetchone()
 
 
-class DisconnectedDB:
+class DisconnectedDB(metaclass=DisconnectedDBMeta):
     """Class which represents disconnected database state"""
 
     @staticmethod
@@ -98,50 +132,6 @@ class DisconnectedDB:
         db_manager.new_state(ConnectedDB)
         db_manager.conn = sqlite3.connect(db_manager.path)
         db_manager.curs = db_manager.conn.cursor()
-
-    @staticmethod
-    def disconnect(db_manager):
-        raise RuntimeError("Already disconnected")
-
-    @staticmethod
-    def get_uids(db_manager):
-        raise RuntimeError("Cannot perform queries on closed database")
-
-    @staticmethod
-    def get_schedule_by_uid(db_manager, uid):
-        raise RuntimeError("Cannot perform queries on closed database")
-
-    @staticmethod
-    def is_registered(db_manager, uid):
-        raise RuntimeError("Cannot perform queries on closed database")
-
-    @staticmethod
-    def register(db_manager, uid):
-        raise RuntimeError("Cannot perform queries on closed database")
-
-    @staticmethod
-    def get_words_by_uid(db_manager, uid):
-        raise RuntimeError("Cannot perform queries on closed database")
-
-    @staticmethod
-    def add_scheduled_time_by_uid(db_manager, uid: int, time_string: str):
-        raise RuntimeError("Cannot perform queries on closed database")
-
-    @staticmethod
-    def add_words(db_manager, uid: int, words: list):
-        raise RuntimeError("Cannot perform queries on closed database")
-
-    @staticmethod
-    def get_next_time_by_uid(db_manager, cur_time_str, uid):
-        raise RuntimeError("Cannot perform queries on closed database")
-
-    @staticmethod
-    def get_random_word_by_uid(self, uid: int):
-        raise RuntimeError("Cannot perform queries on closed database")
-
-    @staticmethod
-    def get_all_words_by_uid(db_manager, uid):
-        raise RuntimeError("Cannot perform queries on closed database")
 
 
 class DBManager:
