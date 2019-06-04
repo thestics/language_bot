@@ -135,7 +135,12 @@ class DisconnectedDB(metaclass=DisconnectedDBMeta):
 
 
 class DBManager:
+    """Database class manager.
 
+        Implemented as a state machine, each state is implemented
+        in it's own class. Any operation on database is delegated to be
+        executed by current state class.
+    """
     def __init__(self, path):
         self.path = path
         self.conn = None
