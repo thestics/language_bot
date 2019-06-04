@@ -4,14 +4,7 @@
 
 import unittest
 
-
-class TGBotTester(unittest.TestCase):
-    pass
-
-
-class UtilsTester(unittest.TestCase):
-    pass
-
+from .tests import BotTester, UtilsTester
 
 
 def test_bot_front():
