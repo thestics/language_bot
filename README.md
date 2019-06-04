@@ -16,13 +16,14 @@ particular word.
 - info about commands
 - info about words input format
 - manual time scheduling 
-- ability to skip word in case user struggle to answer it
+- automatic 
+- ability to skip word in case if user struggle to answer it
 - ability to show full list of uploaded words
 
 
-## Feachures to be released
-- Division of uploaded words into learned/to be learned
-- Statistics about your learn pace (how many attemts it took you to learn the word, average time of answering etc.)
-- Pre-defined schedule markups (every couple of hours, n times a day etc.)
-- Rework of user input orientation (buttons much more user friendly than typed commands)
+## Features to be released
+- division of uploaded words into learned/to be learned
+- statistics about your learn pace (how many attempts it took you to learn the word, average time of answering etc.)
+- pre-defined schedule markups (every couple of hours, n times a day etc.)
+- rework of user input orientation (buttons much more user friendly than typed commands)
 
