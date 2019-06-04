@@ -23,7 +23,7 @@ class ThreadedDict:
         def new_f(*args, **kwargs):
 
             # if was acquired by a different thread
-            # it will wait here until release it's release
+            # the new one will wait here until it is released
             with self.lock:
                 res = f(*args, **kwargs)
                 return res
