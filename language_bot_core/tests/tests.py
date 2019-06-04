@@ -18,14 +18,19 @@ class DBManagerTester(unittest.TestCase):
                       language_bot_core.dbmanager.ConnectedDB,
                       "Incorrect state change after connection: "
                       "(Expected connected state)")
+        with self.assertRaises(language_bot_core.dbmanager.
+                               ConnectedDatabaseError):
+            self.data.connect()
 
     def test_disconnected_state(self):
-        # self.data.connect()
         self.data.disconnect()
         self.assertIs(self.data._state,
                       language_bot_core.dbmanager.DisconnectedDB,
                       "Incorrect state after disconnection: "
                       "(Expected disconnected state)")
+        with self.assertRaises(language_bot_core.dbmanager.
+                               DisconnectedDatabaseError):
+            self.data.get_uids()
         self.data.connect()
 
     def test_get_uids(self):
