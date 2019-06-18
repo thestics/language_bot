@@ -28,9 +28,9 @@ class DisconnectedDBMeta(type):
         a.method()              -- invokes a.__class__.__getattribute__
         (or __getattr__). In this case a.__class__ == DisconnectedDB, likewise
         DisconnectedDB.method() -- invokes DisconnectedDB.__class__.__getattr__
-        however, in this case __class__ == type. (because any class in Python
+        however, in this case __class__ == type (because any class in Python
         is an instance of type) and all method management is hidden in
-        type.__getattr__, so in this case it is crucial to define our own
+        type.__getattr__, so in this case it is crucial to define own custom
         metaclass
     """
 
@@ -94,6 +94,17 @@ class ConnectedDB:
         db_manager.conn.commit()
 
     @staticmethod
+    def delete_scheduled_time_by_uid(db_manager, uid: int, time_string: str):
+        q1 = "select count(*) from schedule where user_id=? and time=?"
+        db_manager.curs.execute(q1, (uid, time_string))
+        status = db_manager.curs.fetchone()[0]
+
+        q2 = "delete from schedule where user_id=? and time=?"
+        db_manager.curs.execute(q2, (uid, time_string))
+        db_manager.conn.commit()
+        return status
+
+    @staticmethod
     def add_words(db_manager, uid: int, words: list):
         q = "insert into word_src values (?, ?, ?, ?)"
         for word_from, word_to in words:
@@ -102,7 +113,7 @@ class ConnectedDB:
 
     @staticmethod
     def get_next_time_by_uid(db_manager, cur_time_str, uid):
-        q = "select time from schedule where time > ? and user_id = ? " \
+        q = "select time from schedule where time >= ? and user_id = ? " \
             "order by time asc limit 1"
         db_manager.curs.execute(q, (cur_time_str, uid))
         resp = db_manager.curs.fetchone()
@@ -166,6 +177,9 @@ class DBManager:
     def add_scheduled_time_by_uid(self, uid: int, time_string: str):
         self._state.add_scheduled_time_by_uid(self, uid, time_string)
 
+    def delete_scheduled_time_by_uid(self, uid: int, time_string: str):
+        return self._state.delete_scheduled_time_by_uid(self, uid, time_string)
+
     def get_next_time_by_uid(self, cur_time_str, uid):
         return self._state.get_next_time_by_uid(self, cur_time_str, uid)
 
@@ -183,3 +197,9 @@ class DBManager:
 
     def add_words(self, uid: int, words: list):
         self._state.add_words(self, uid, words)
+
+
+if __name__ == '__main__':
+    db = DBManager('../source.db')
+    db.connect()
+    print(db.get_next_time_by_uid('00:00:00', 123456))
