@@ -135,6 +135,7 @@ class SchedulerBase:
     def __init__(self, db_manager: DBManager, uid: int):
         self.db_manager = db_manager
         self.uid = uid
+        self.db_manager.connect()
 
     def add_time(self, time_str):
         if self._is_valid_time_string(time_str):
@@ -244,17 +245,7 @@ class Scheduler(SchedulerBase):
                                         delta_time_str)
 
     def base_preset_handler(self, min_time_str, max_time_str, delta_time_str):
-        start = ArithmeticTime.fromisoformat(min_time_str)
-        stop = ArithmeticTime.fromisoformat(max_time_str)
-        delta = ArithmeticTime.fromisoformat(delta_time_str)
+        start = time.fromisoformat(min_time_str)
+        stop = time.fromisoformat(max_time_str)
+        delta = time.fromisoformat(delta_time_str)
         return [start + i * delta for i in range((start - stop)/delta)]
-
-
-
-if __name__ == '__main__':
-    s = ArithmeticTime(0, 0, 45)
-    for i in range(10):
-        print(i * s, end='\t')
-        t = i * s
-        print(t / s)
-
