@@ -2,14 +2,25 @@
 # -*-encoding: utf-8-*-
 
 
-# NEEDS TO BE TESTED FOR CONCURRENCY ERRORS
+""" TODO: TEST FOR CONCURRENCY ERRORS
+     - work on handlers placement (probably should be moved to another module)
+     - add verification for /add_time
+     - add schedule presets (every hour, every half an hour etc.)
+     - update handlers to use Keyboard Markups for more convenient user exp
+     - multiple notes management:
+        Addition of new words when previous are studied (maybe send some
+        kind of explanation in case user attempts to add new words when he isn't
+        proficient enough with a certain percent of already uploaded ones)
+        rework words retrieving: introduce *known* *unknown* status for each
+        word, provide unknown words to user more frequently, than unlearnt.
+"""
 
 
 from threading import Thread
 
 import telebot as tb
 
-from telegram_language_bot.utils import ThreadedDict
+from telegram_language_bot.utils import ThreadedDict, Scheduler
 from language_bot_core import dispatch_mainloop, DBManager, \
                             build_random_words_by_uids, parse
 from telegram_language_bot.constants import TOKEN, DB_PATH, GREETING_MSG,\
@@ -32,7 +43,6 @@ registered_users_buffer = set()
 bot = tb.TeleBot(TOKEN)
 
 
-# TODO: work on handlers placement (probably should be moved to another module)
 def is_registered(msg):
     """
     Helper validation function to prevent any actions from unregistered users
@@ -67,7 +77,7 @@ def start_handler(msg):
 
 
 @bot.message_handler(commands=['info'], func=is_registered)
-def info_helper(msg):
+def info_handler(msg):
     reply = ""
     for command, desc in COMMANDS.items():
         reply += "/{} - {}\n".format(command, desc)
@@ -75,7 +85,7 @@ def info_helper(msg):
 
 
 @bot.message_handler(commands=['upload_info'], func=is_registered)
-def upload_info_helper(msg):
+def upload_info_handler(msg):
     bot.send_message(msg.chat.id, WORDS_UPLOAD_MSG)
 
 
