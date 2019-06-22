@@ -200,8 +200,7 @@ class Scheduler(SchedulerBase):
                 raise SchedulerPresetTypeHelperError('An error occurred while'
                                                      'handling preset type')
         self.clear_schedule()
-        return schedule
-        # self.add_times(schedule)
+        self.add_times(schedule)
 
     def _handle_type1_preset(self, min_time_str, max_time_str) -> list:
         """
@@ -249,6 +248,6 @@ class Scheduler(SchedulerBase):
         start = time.fromisoformat(min_time_str)
         stop = time.fromisoformat(max_time_str)
         delta = time.fromisoformat(delta_time_str)
-        return [start + i * delta for i in range((start - stop)/delta)]
+        return [(start + i * delta).isoformat() for i in range((start - stop)/delta)]
 
 
