@@ -100,7 +100,7 @@ class ArithmeticTime(datetime.time):
 
     def __sub__(self, other):
         h = abs(self.hour - other.hour)
-        m = abs(self.min - other.min)
+        m = abs(self.minute - other.minute)
         s = abs(self.second - other.second)
         h, m, s = self._normalize_time(h, m, s)
         return ArithmeticTime(h, m, s)
@@ -119,8 +119,8 @@ class ArithmeticTime(datetime.time):
         return self.__mul__(other)
 
     def __truediv__(self, other):
-        left_sec = self.second + self.minute * 60 + self.hour + 3600
-        right_sec = other.second + other.minute * 60 + other.hour + 3600
+        left_sec = self.second + self.minute * 60 + self.hour * 3600
+        right_sec = other.second + other.minute * 60 + other.hour * 3600
         return left_sec // right_sec
 
 
@@ -200,7 +200,8 @@ class Scheduler(SchedulerBase):
                 raise SchedulerPresetTypeHelperError('An error occurred while'
                                                      'handling preset type')
         self.clear_schedule()
-        self.add_times(schedule)
+        return schedule
+        # self.add_times(schedule)
 
     def _handle_type1_preset(self, min_time_str, max_time_str) -> list:
         """
@@ -249,3 +250,5 @@ class Scheduler(SchedulerBase):
         stop = time.fromisoformat(max_time_str)
         delta = time.fromisoformat(delta_time_str)
         return [start + i * delta for i in range((start - stop)/delta)]
+
+
