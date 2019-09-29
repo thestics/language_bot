@@ -4,6 +4,7 @@
 
 import time
 import types
+import logging as log
 
 from .dbmanager import DBManager
 
@@ -27,7 +28,7 @@ def build_random_words_by_uids(db: DBManager, uids: list):
     return res
 
 
-def dispatch_mainloop(path:str, delay: int, callback: types.FunctionType):
+def dispatch_mainloop(path: str, delay: int, callback: types.FunctionType):
     """
     mainloop for scheduled word dispatching, intended to be target of Thread
 
@@ -49,7 +50,7 @@ def dispatch_mainloop(path:str, delay: int, callback: types.FunctionType):
                       for uid in uids}
     db.disconnect()
     while True:
-        # print("DISPATCHER AWAKE")
+        # log.info("Dispatcher awake")
         # print("prev uids map:", uids_next_time)
         db.connect()
 
@@ -81,6 +82,11 @@ def dispatch_mainloop(path:str, delay: int, callback: types.FunctionType):
             callback(uids, new_words)
         db.disconnect()
         # print("upd uids map:", uids_next_time)
-        # print(f"DISPATCHER ASLEEP FOR: {delay} sec")
+
+        if uids:
+            log.info(f"Scheduler will notify next users: {uids}")
+        # log.info(f"Scheduler wont notify anyone")
+
+        # log.info(f"Dispatcher asleep for {delay} sec")
         time.sleep(delay)
 
